@@ -38,7 +38,7 @@ class Agent(Node):
 
     # TODO: Add text to differentiate between different agents
     def process(self, state:State) -> dict:
-        time.sleep(1)
+        time.sleep(2)
         task = state['messages'][-1].content
         feedback = state.get('feedback', '')
         resume = state.get('resume', '')
@@ -53,7 +53,7 @@ class Agent(Node):
         response = self.llm(messages=[HumanMessage(role="user", content=prompt)])
         agent_output = AIMessage(role="assistant", content=f"{self.name} response: {response.content}")
         state['agent_outputs'].append(agent_output)
-        time.sleep(1)
+        time.sleep(2)
         return {"messages": [agent_output], "agent_outputs": [agent_output]}
     
 
@@ -74,11 +74,13 @@ class Aggregator(Node):
         response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
         content = response.content
         resume = self.parse_final_resume(content)
-        # print("Aggregator Resume:", resume)
+        print("Aggregator Resume:", resume)
         state['resume'] = resume
         # print("State Resume:", state['resume'])
         return {
-            "messages": [AIMessage(role="system", content=f"Review result: {content}")]
+            "messages": [AIMessage(role="system", content=f"Review result: {content}")],
+            "agent_outputs": [AIMessage(role="assistant", content=f"{self.name} response: {content}")],
+            "resume": resume
         }
     
     def parse_final_resume(self, content:str) -> str:
@@ -96,6 +98,7 @@ class Evaluator(Node):
         job_description = state['job_description']
         # agent_outputs = state.get('agent_outputs', [])
         resume = state.get('resume', '')
+        print("Evaluator Resume:", resume)
         review_prompt = (
             f"Job Description:\n{job_description}\n\n"
             f"Resume:\n{resume}\n\n"
@@ -143,7 +146,7 @@ class LoopControlNode(Node):
     def process(self, state: State) -> dict:
         state['iteration'] += 1  # Increment iteration
         iteration = state['iteration']
-        relevancy = state['relevancy']
+        relevancy = state.get('relevancy', 0.0)
         print(f"\nIteration {iteration}, Relevancy Score: {relevancy}")
         if relevancy >= 0.90:
             print("Relevancy score has reached threshold of 90. Terminating the process.")
