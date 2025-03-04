@@ -1,0 +1,31 @@
+There is only one Data Cloud. Snowflake’s founders started from scratch and designed a data platform built for the cloud that is effective, affordable, and accessible to all data users. But it didn’t stop there. They engineered Snowflake to power the Data Cloud, where thousands of organizations unlock the value of their data with near-unlimited scale, concurrency, and performance. This is our vision: a world with endless insights to tackle the challenges and opportunities of today and reveal the possibilities of tomorrow.
+
+The platform center team builds a trust and risk management platform to empower Snowflake customers to monitor, identify, achieve, and maintain strong security, governance, privacy and compliance posture and allow for effective and simple risk management within Snowflake. This is a strategic investment to customer’s adoption of Snowflake as their data platform of choice. This platform shall also support a robust developer ecosystem which spans across Snowflake, end customers and external 3rd party developers to enable trust centric data applications via Snowflake’s Marketplace. 
+
+To deliver on our mission we are building solutions leveraging industry accredited benchmarks (e.g., CIS Center for Internet Security) and best practices. We complement this by quantifying both Snowflake customer accounts and the platform’s trust posture with insights that help prevent, detect and respond to threats and abuse vectors (behavioral analytics, PII attribution etc) and transparency via compliance certificates, vulnerability patching status, reporting and access transparency to customer data and accounts. We are just getting started and there’s plenty to build and innovate in this space!
+
+YOU WILL:
+Design and implement plug-n-play platform, framework solutions for the platform center to allow for first and third party detectors, responders and visualization
+
+Design and implement product related features and services (with high availability and scale) to provide trust and risk management capabilities into our platform.
+
+Build operational and release rigor with every feature/bug fix deployments.
+
+Work closely with PMs to drive projects from idea formulation to design and implementation.
+
+QUALIFICATIONS:
+Between 1 to 5 years of industry experience designing, building, and supporting large-scale distributed systems in production, with recent experience in building large scale cloud services.
+
+Knowledge and experience with different security, governance, privacy and compliance areas is a plus (though not required). 
+
+Experience with database systems and Machine Learning/AI are a big plus.
+
+Extremely strong fundamental computer science skills.
+
+Strong development skills in Java, Python, SQL. 
+
+BS in Computer Science or related degree.
+
+Every Snowflake employee is expected to follow the company’s confidentiality and security standards for handling sensitive data. Snowflake employees must abide by the company’s data security plan as an essential part of their duties. It is every employee's duty to keep customer information secure and confidential.
+
+Snowflake is growing fast, and we’re scaling our team to help enable and accelerate our growth. We are looking for people who share our values, challenge ordinary thinking, and push the pace of innovation while building a future for themselves and Snowflake.

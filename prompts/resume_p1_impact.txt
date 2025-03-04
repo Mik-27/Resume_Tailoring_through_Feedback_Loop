@@ -1,0 +1,7 @@
+Goal:
+Tailor the resume as per the job description emphasizing on impact and initiative.
+
+Instructions:
+- Do not create fake projects or experience.
+- Change the statements and metrics to better show impact and initiative.
+- Keep the same format and length of the resume as the resume provided.

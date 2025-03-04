@@ -1,0 +1,50 @@
+MIHIR THAKUR
+602-576-4346 ⋄ Tempe, AZ
+tmihir27@gmail.com ⋄ mik-27.github.io ⋄ Linkedin ⋄ GitHub
+OBJECTIVE
+Results-oriented graduate student with a proven track record of ownership, proficient in breaking down complex
+problems, leveraging machine learning and full-stack development to deliver innovative applications.
+EDUCATION
+Arizona State University, Master of Science in Computer Science May 2025
+Coursework: Statistical ML, NLP, Data Mining, Adv. Operating System, ML Acceleration GPA: 3.93
+University of Mumbai, Bachelor of Engineering in Computer Engineering May 2022
+Coursework: Data Structure, Algorithms, Object Oriented Programming, Computer Architecture GPA: 3.85
+SKILLS
+Languages and Databases: Python, C/C++, JavaScript, MySQL, MS SQL, PostgreSQL, MongoDB, NoSQL
+Cloud: Databricks, Azure(Data Factory, Blob Storage, AML), AWS(S3, EC2, Sagemaker), Docker, ElasticSearch
+Development: Numpy, Pandas, Scikit-learn, PyTorch, PySpark, MLFlow, Matplotlib, Plotly, XGBoost, React
+Others: Git, GitHub, Unix/Linux, Apache Spark, PowerBI, Jupyter, Statistics, Shell, ETL, Jira, API Development
+EXPERIENCE
+LTIMindtree June 2022 - July 2023
+Data Scientist Pune, India
+• Implemented data science use cases in Azure and Databricks for client in finance and banking domain,
+leveraging data-driven insights for business decision-making in a dynamic customer-focused environment.
+• Performed exploratory data analysis and feature engineering, integrating data from large-scale datasets
+(100M+ records) on distributed system, training tree-based models for risk-based customer segmentation.
+• Optimized SQL queries using Spark SQL reducing runtime by 20%, ensuring data quality and integrity.
+• Innovated approach to categorize delinquent customers for loan repayment, achieving 92% accuracy and built
+production-level end-to-end data pipeline using PySpark, facilitating scheduled batch processing.
+• Spearheaded 2 proof-of-concept(PoC) demonstrations to technical and non-technical stakeholders with
+documentation, demonstrating effective written and verbal communication and teamwork in Agile setup.
+• Collaborated with cross-functional teams for setting Azure infrastructure and testing services.
+• Built dashboard on PowerBI to display 7 key performance indicators, monitoring system performance.
+PROJECTS
+Vehicle Loan Sales — Python, XGBoost, Databricks, Azure, Scikit-learn, Classification
+• Built end-to-end ML system in Azure Databricks using PySpark to classify potential leads for commercial
+vehicle loan sales, integrating 10 extensive enterprise data tables, training XGBoost model with 0.89 recall.
+• Received positive feedback from client product team for analysis and thus reducing 30% manual overhead.
+PolicyRAG — Python, ElasticSearch, LLMs, RAG, Flask, Vector Database, Similarity Search, Chatbot
+• Designed web crawler to scrape 1000 policy documents, converting to 5,000 text chunk embeddings.
+• Implemented information retrieval system to fetch relevant documents from vector database, integrating
+solution into chatbot following software design principles for context-aware responses within 8 seconds.
+Language and Robotics — Python, Pytorch, NLP, LLMs, GPT, Linux
+• Fine-tuned transformer models to predict and summarize robot actions obtaining ROUGE score of 0.62.
+• Formulated approach and modified model based on feature embedding, collaborating with teammates.
+Remote Patient Management and Data Analysis — C#, Javascript, Node.js, React.js, Python, PyTorch
+• Led project development by adhering to timelines for IoT system using Arduino microcontroller and sensors
+to read patient vitals, training neural network model to estimate arrhythmia risk with 88.3% accuracy.
+• Configured data management, enabling real-time updates via dashboard, saving 25 minutes per patient.
+CERTIFICATIONS
+• OCI Generative AI Professional Certificate.
+• Microsoft Certified: Azure Fundamentals (ID: I277-4775).
+Distributed systems, Java, Go, security, design, user experience, product features, risk, identity.

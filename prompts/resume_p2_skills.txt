@@ -1,0 +1,8 @@
+Goal:
+Tailor the resume as per the job description emphasizing on skills required by the job.
+
+Instructions:
+- Do not create fake projects or experience.
+- Change the statements and metrics to better show skills used.
+- Skills that can be easily transferred from the knowledgebase based on candidate's resume can be mentioned.
+- Keep the same format and length of the resume as the resume provided.

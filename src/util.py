@@ -3,8 +3,8 @@ from .state import State
 from langgraph.graph import StateGraph, START, END
 
 
-def next_node(state: State) -> Literal["supervisor", END]:
+def next_node(state: State) -> Literal["Supervisor", END]:
     if state['continue_loop']:
-        return "supervisor"
+        return "Supervisor"
     else:
         return END

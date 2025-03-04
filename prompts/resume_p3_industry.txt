@@ -1,0 +1,8 @@
+Goal:
+Tailor the resume as per the job description emphasizing on the industry and domain knowledge.
+
+Instructions:
+- Do not create fake projects or experience.
+- Change the statements and metrics to better show skills used.
+- Put more empahsis on projects and skills that better align with the job domain.
+- Keep the same format and length of the resume as the resume provided.

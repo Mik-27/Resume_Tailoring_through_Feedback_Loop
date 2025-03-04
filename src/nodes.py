@@ -1,3 +1,4 @@
+import time
 from .state import State
 from langchain.schema import HumanMessage, AIMessage
 
@@ -19,75 +20,119 @@ class Supervisor(Node):
         super().__init__("Supervisor")
     
     def process(self, state:State) -> dict:
+        # This will act as a system prompt for the llm
         task = state['messages'][0].content if state['messages'] else "No task set."
         thought_prompt = f"Think before responding: {task}"
-        expected_result = f"{thought_prompt}"
-        state['expected_result'] = expected_result
         state['feedback'] = ''
-        state['evaluation'] = 0.0
+        state['relevancy'] = 0.0
         state['agent_outputs'] = []
         return {
-            "messages": [HumanMessage(role="system", content=f"Iteration {state['iteration']}: {thought_prompt}")],
-            "expected_result": expected_result
+            "messages": [HumanMessage(role="system", content=f"Iteration {state['iteration']}: {thought_prompt}")]
         }
     
 class Agent(Node):
-    def __init__(self, agent_name:str, llm):
+    def __init__(self, agent_name:str, llm, prompt: str):
         super().__init__(agent_name)
         self.llm = llm
+        self.prompt = prompt
 
+    # TODO: Add text to differentiate between different agents
     def process(self, state:State) -> dict:
+        time.sleep(1)
         task = state['messages'][-1].content
         feedback = state.get('feedback', '')
+        resume = state.get('resume', '')
+        job_description = state.get('job_description', '')
+        if resume and job_description:
+            task += f"\nResume: {resume}\nJob Description: {job_description}"
+        if self.prompt:
+            task += f"\n{self.prompt}"
         if feedback:
             task += f"\nFeedback: {feedback}"
-        prompt = f"You are {self.name}. Please perform the following task: {task}"
+        prompt = f"You are {self.name}.\n{task}"
         response = self.llm(messages=[HumanMessage(role="user", content=prompt)])
         agent_output = AIMessage(role="assistant", content=f"{self.name} response: {response.content}")
         state['agent_outputs'].append(agent_output)
+        time.sleep(1)
         return {"messages": [agent_output], "agent_outputs": [agent_output]}
     
+
+class Aggregator(Node):
+    def __init__(self, llm):
+        super().__init__("Aggregator")
+        self.llm = llm
+
+    # TODO: Push evaluators before aggregators and aggregate as per evaluation score weights
+    def process(self, state:State) -> dict:
+        agent_outputs = state['agent_outputs']
+        agent_outputs_text = "\n".join([msg.content for msg in agent_outputs])
+        review_prompt = (
+            f"Agent outputs:\n{agent_outputs_text}\n\n"
+            "Please compare the agent outputs and aggregate the best parts from each resume to provide a final resume to improve relevancy score between job description and resume.\n"
+            "Format: \nFinal Resume: ..."
+        )
+        response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
+        content = response.content
+        resume = self.parse_final_resume(content)
+        # print("Aggregator Resume:", resume)
+        state['resume'] = resume
+        # print("State Resume:", state['resume'])
+        return {
+            "messages": [AIMessage(role="system", content=f"Review result: {content}")]
+        }
+    
+    def parse_final_resume(self, content:str) -> str:
+        resume = content.replace("Final Resume:", "").strip()
+        return resume
+    
+
+
 class Evaluator(Node):
     def __init__(self, llm):
         super().__init__("Evaluator")
         self.llm = llm
 
     def process(self, state:State) -> dict:
-        expected_result = state['expected_result']
-        agent_outputs = state.get('agent_outputs', [])
-        agent_outputs_text = "\n".join([msg.content for msg in agent_outputs])
+        job_description = state['job_description']
+        # agent_outputs = state.get('agent_outputs', [])
+        resume = state.get('resume', '')
         review_prompt = (
-            f"Expected result:\n{expected_result}\n\n"
-            f"Agent outputs:\n{agent_outputs_text}\n\n"
-            "Please compare the expected result with the agent outputs, "
-            "and provide feedback and an evaluation score between 0 and 1.\n"
-            "Format:\nFeedback: ...\nEvaluation Score: 0.X"
+            f"Job Description:\n{job_description}\n\n"
+            f"Resume:\n{resume}\n\n"
+            "Please compare the Job Description with the resume, "
+            "and provide feedback to improve the relevancy score"
+            "between job description and resume and a relevancy score "
+            "based on keywords, qualifications and skills between 0 and 1.\n"
+            "Output the float value only for relevancy score.\n"
+            "Format:\nFeedback: ...\nRelevancy Score: 0.X"
         )
         response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
         content = response.content
-        feedback, evaluation = self.parse_feedback_and_evaluation(content)
+        feedback, relevancy = self.parse_feedback_and_relevancy(content)
         state['feedback'] = feedback
-        state['evaluation'] = evaluation
+        state['relevancy'] = relevancy
+        # print(f"Resume: {resume}\nRelevancy Score: {relevancy}")
         return {
             "messages": [AIMessage(role="system", content=f"Review result: {content}")],
             "feedback": feedback,
-            "evaluation": evaluation
+            "relevancy": relevancy
         }
 
-    def parse_feedback_and_evaluation(self, content:str) -> float:
+    def parse_feedback_and_relevancy(self, content:str) -> float:
         lines = content.splitlines()
         feedback = ''
-        evaluation = 0.0
+        relevancy = 0.0
         for line in lines:
             if line.startswith("Feedback:"):
                 feedback = line.replace("Feedback:", "").strip()
-            elif line.startswith("Evaluation Score:"):
-                score_str = line.replace("Evaluation Score:", "").strip()
+            elif line.startswith("Relevancy Score:"):
+                score_str = line.replace("Relevancy Score:", "").strip()
                 try:
-                    evaluation = float(score_str)
+                    relevancy = float(score_str)
                 except ValueError:
-                    evaluation = 0.0
-        return feedback, evaluation
+                    print(f"Error: Could not parse relevancy score from: {score_str}")
+                    relevancy = 0.0
+        return feedback, relevancy
 
 
 class LoopControlNode(Node):
@@ -98,10 +143,10 @@ class LoopControlNode(Node):
     def process(self, state: State) -> dict:
         state['iteration'] += 1  # Increment iteration
         iteration = state['iteration']
-        evaluation = state['evaluation']
-        print(f"Iteration {iteration}, Evaluation Score: {evaluation}")
-        if evaluation >= 1:
-            print("Evaluation score has reached 1 or higher. Terminating the process.")
+        relevancy = state['relevancy']
+        print(f"\nIteration {iteration}, Relevancy Score: {relevancy}")
+        if relevancy >= 0.90:
+            print("Relevancy score has reached threshold of 90. Terminating the process.")
             state['continue_loop'] = False
         elif iteration >= self.max_iterations:
             print("Maximum number of iterations reached. Terminating the process.")
