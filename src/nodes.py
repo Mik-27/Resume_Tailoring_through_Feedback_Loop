@@ -1,6 +1,8 @@
 import time
+import random
 from .state import State
 from langchain.schema import HumanMessage, AIMessage
+
 
 class Node():
     def __init__(self, name):
@@ -29,7 +31,8 @@ class Supervisor(Node):
         return {
             "messages": [HumanMessage(role="system", content=f"Iteration {state['iteration']}: {thought_prompt}")]
         }
-    
+
+
 class Agent(Node):
     def __init__(self, agent_name:str, llm, prompt: str):
         super().__init__(agent_name)
@@ -38,7 +41,8 @@ class Agent(Node):
 
     # TODO: Add text to differentiate between different agents
     def process(self, state:State) -> dict:
-        time.sleep(2)
+        # Generate random sleep so that more than 2 requests are not processes in the same time.
+        time.sleep(random.randint(1,5))
         task = state['messages'][-1].content
         feedback = state.get('feedback', '')
         resume = state.get('resume', '')
@@ -53,7 +57,7 @@ class Agent(Node):
         response = self.llm(messages=[HumanMessage(role="user", content=prompt)])
         agent_output = AIMessage(role="assistant", content=f"{self.name} response: {response.content}")
         state['agent_outputs'].append(agent_output)
-        time.sleep(2)
+        time.sleep(1)
         return {"messages": [agent_output], "agent_outputs": [agent_output]}
     
 
@@ -66,17 +70,18 @@ class Aggregator(Node):
     def process(self, state:State) -> dict:
         agent_outputs = state['agent_outputs']
         agent_outputs_text = "\n".join([msg.content for msg in agent_outputs])
+        with open("./prompts/aggregator_prompt.txt", "r") as f:
+            prompt = f.read()
         review_prompt = (
             f"Agent outputs:\n{agent_outputs_text}\n\n"
-            "Please compare the agent outputs and aggregate the best parts from each resume to provide a final resume to improve relevancy score between job description and resume.\n"
+            "{prompt}\n"
             "Format: \nFinal Resume: ..."
         )
         response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
         content = response.content
         resume = self.parse_final_resume(content)
-        print("Aggregator Resume:", resume)
+        # print("Aggregator Resume:", resume)
         state['resume'] = resume
-        # print("State Resume:", state['resume'])
         return {
             "messages": [AIMessage(role="system", content=f"Review result: {content}")],
             "agent_outputs": [AIMessage(role="assistant", content=f"{self.name} response: {content}")],
@@ -96,9 +101,8 @@ class Evaluator(Node):
 
     def process(self, state:State) -> dict:
         job_description = state['job_description']
-        # agent_outputs = state.get('agent_outputs', [])
         resume = state.get('resume', '')
-        print("Evaluator Resume:", resume)
+        # print("Evaluator Resume:", resume)
         review_prompt = (
             f"Job Description:\n{job_description}\n\n"
             f"Resume:\n{resume}\n\n"
@@ -114,7 +118,6 @@ class Evaluator(Node):
         feedback, relevancy = self.parse_feedback_and_relevancy(content)
         state['feedback'] = feedback
         state['relevancy'] = relevancy
-        # print(f"Resume: {resume}\nRelevancy Score: {relevancy}")
         return {
             "messages": [AIMessage(role="system", content=f"Review result: {content}")],
             "feedback": feedback,

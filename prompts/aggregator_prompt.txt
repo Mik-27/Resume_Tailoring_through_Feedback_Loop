@@ -1,0 +1,5 @@
+Please compare the agent outputs and aggregate the best parts from each resume to provide a final resume to improve relevancy score between job description and resume.
+
+Constraints:
+- Keep the length of the resume same (i.e. same number of lines as the originally provided resume with word wrap enabled)
+- Do not change facts in the resume (eg. Certifications, Education, Dates, Company Name, Project Names)
