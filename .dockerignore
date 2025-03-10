@@ -1,0 +1,9 @@
+.env
+.gitignore
+
+resume
+images
+
+src/__pycache__
+
+pipeline.py
