@@ -13,3 +13,4 @@ class State(TypedDict):
     agent_outputs: Annotated[List[AIMessage], add_messages]
     relevancy: float
     continue_loop: bool
+    final_resume: dict

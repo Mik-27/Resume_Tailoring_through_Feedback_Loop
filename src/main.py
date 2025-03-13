@@ -15,7 +15,7 @@ load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI_API_KEY")
 
 class ResumeAgent():
-    def __init__(self, query="Tailor the provided resume to the job description according to the given goal and instructions, also consider feedback if available.", max_iterations=5, time_limit=500):
+    def __init__(self, query="Tailor the provided resume to the job description according to the given goal and instructions, also consider feedback if available.", max_iterations=5, time_limit=700):
         self.max_iterations = max_iterations
         self.time_limit = time_limit
         self.query = query

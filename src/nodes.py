@@ -1,6 +1,10 @@
 import time
 import random
+import json
 from .state import State
+from .model import Resume
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain.schema import HumanMessage, AIMessage
 
 
@@ -59,7 +63,7 @@ class Agent(Node):
         state['agent_outputs'].append(agent_output)
         time.sleep(1)
         return {"messages": [agent_output], "agent_outputs": [agent_output]}
-    
+
 
 class Aggregator(Node):
     def __init__(self, llm):
@@ -74,16 +78,39 @@ class Aggregator(Node):
             prompt = f.read()
         review_prompt = (
             f"Agent outputs:\n{agent_outputs_text}\n\n"
-            "{prompt}\n"
+            f"{prompt}\n"
             "Format: \nFinal Resume: ..."
         )
+        # *********************************************************
+        prompt_template = ChatPromptTemplate.from_template(  # Create the prompt template
+            """You are an expert resume writer. Please generate a resume based on the following information:
+
+            Agent outputs:
+            {agent_outputs}
+
+            {format_instructions}"""
+        )
+        output_parser = PydanticOutputParser(pydantic_object=Resume)
+        formatted_prompt = prompt_template.format(
+            agent_outputs=agent_outputs_text,
+            format_instructions=output_parser.get_format_instructions()
+        )
+        response1 = self.llm.invoke(formatted_prompt)
+        data = self.parse_json_response(response1)
+        # print("Structured Response: \n\n", data)
+        state['final_resume'] = data
+        # ********************************************************
+
         response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
         content = response.content
         resume = self.parse_final_resume(content)
-        # print("Aggregator Resume:", resume)
+
+        structured_llm = self.llm.with_structured_output(Resume)
+        response2 = structured_llm.invoke(f"Convert the resume to the desired output format: \n {resume}")
+        print("Formatted Resume:", response2.json())
         state['resume'] = resume
         return {
-            "messages": [AIMessage(role="system", content=f"Review result: {content}")],
+            "messages": [AIMessage(role="system", content=f"Aggregated Resume: {content}")],
             "agent_outputs": [AIMessage(role="assistant", content=f"{self.name} response: {content}")],
             "resume": resume
         }
@@ -91,6 +118,28 @@ class Aggregator(Node):
     def parse_final_resume(self, content:str) -> str:
         resume = content.replace("Final Resume:", "").strip()
         return resume
+    
+    def parse_json_response(self, content:str) -> dict:
+        raw_content = content.content.strip().rstrip('`') 
+        start_index = -1
+        for i, char in enumerate(raw_content):
+            if char in ['{', '[']:
+                start_index = i
+                break
+        
+        if start_index != -1:
+            json_string = raw_content[start_index:]
+        else:
+            json_string = raw_content
+
+        try:
+            json_output = json.loads(json_string)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON after cleaning: {e}")
+            print(f"Problematic JSON string after cleaning: {json_string}")
+            json_output = None
+
+        return json_output
     
 
 
@@ -161,3 +210,28 @@ class LoopControlNode(Node):
             print("Continuing to the next iteration.")
             state['continue_loop'] = True
         return state
+    
+
+class FormattingNode(Node):
+    def __init__(self, llm):
+        super().__init__("Formatting")
+        self.llm = llm
+
+    def process(self, state: State) -> dict:
+        resume = state.get('resume', '')
+        review_prompt = (
+            f"Please format the resume in a professional manner.\n"
+            "Format:\nFinal Resume: ..."
+        )
+        response = self.llm(messages=[HumanMessage(role="user", content=review_prompt)])
+        content = response.content
+        resume = self.parse_final_resume(content)
+        state['resume'] = resume
+        return {
+            "messages": [AIMessage(role="system", content=f"Review result: {content}")],
+            "resume": resume
+        }
+    
+    def parse_final_resume(self, content:str) -> str:
+        resume = content.replace("Final Resume:", "").strip()
+        return resume
